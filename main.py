@@ -1,6 +1,6 @@
 from optparse import OptionParser
-from file_path_builder import FilePathBuilder
-from html_reader import HtmlReader
+from lib.file_path_builder import FilePathBuilder
+from lib.html_reader import HtmlReader
 
 def main():
     parser = OptionParser()
@@ -13,11 +13,11 @@ def main():
         exit()
 
     builder = FilePathBuilder(url)
-    file_path = builder.build()
+    output_file_path = builder.build()
 
-    html_reader = HtmlReader(url, file_path)
+    html_reader = HtmlReader(url, output_file_path)
     html_reader.parse()
-    print('Saved content to %s' % file_path)
+    print('Saved content to %s' % output_file_path)
 
 if __name__ == '__main__':
     main()
