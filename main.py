@@ -1,7 +1,5 @@
-# print 'Wow Im in!'
-
 from optparse import OptionParser
-from reader import Reader
+from html_reader import HtmlReader
 
 def main():
     parser = OptionParser()
@@ -11,14 +9,11 @@ def main():
 
     if not (url):
         print('Error: Source URL not defined')
+        exit()
 
-    reader = Reader(url)
-    reader.prepare_dir()
-    print reader.file_path
-    print reader.file_name
-
-    with open(reader.file_path + '/' + reader.file_name, 'w') as f:
-        f.write(url)
+    html_reader = HtmlReader(url)
+    html_reader.parse()
+    print('Saved content to %s' % html_reader.file_path)
 
 if __name__ == '__main__':
     main()
