@@ -1,4 +1,5 @@
 from optparse import OptionParser
+from file_path_builder import FilePathBuilder
 from html_reader import HtmlReader
 
 def main():
@@ -11,9 +12,12 @@ def main():
         print('Error: Source URL not defined')
         exit()
 
-    html_reader = HtmlReader(url)
+    builder = FilePathBuilder(url)
+    file_path = builder.build()
+
+    html_reader = HtmlReader(url, file_path)
     html_reader.parse()
-    print('Saved content to %s' % html_reader.file_path)
+    print('Saved content to %s' % file_path)
 
 if __name__ == '__main__':
     main()
