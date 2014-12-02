@@ -1,7 +1,14 @@
-from optparse import OptionParser
 import urllib
+import os.path
+
+from optparse import OptionParser
 from lib.file_path_builder import FilePathBuilder
 from lib.html_reader import HtmlReader
+
+def ensure_dir_exists(file_path):
+    dir = os.path.dirname(file_path)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
 
 def main():
     parser = OptionParser()
@@ -13,15 +20,17 @@ def main():
         print('Error: Source URL not defined')
         exit()
 
-    builder = FilePathBuilder(url)
-    output_file_path = builder.build()
-
     f = urllib.urlopen(url)
     encoding = f.headers.getparam('charset') or 'utf-8'
     html = f.read().decode(encoding)
-
-    html_reader = HtmlReader(url, output_file_path)
+    html_reader = HtmlReader(url)
     html_reader.feed(html)
+
+    builder = FilePathBuilder(url)
+    output_file_path = builder.build()
+    ensure_dir_exists(output_file_path)
+    with open(output_file_path, 'w') as f:
+       f.write(html_reader.get_text().encode('utf-8'))
     print('Saved content to %s' % output_file_path)
 
 if __name__ == '__main__':

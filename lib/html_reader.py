@@ -1,33 +1,38 @@
-import os.path
 from HTMLParser import HTMLParser
 
 class HtmlReader(HTMLParser):
-    def __init__(self, url, file_path):
+    SEPARATED_TAGS = ['h1', 'h2', 'h3', 'h4', 'p']
+    TAGS = ['a', 'span'] + SEPARATED_TAGS
+
+    def __init__(self, url,):
         HTMLParser.__init__(self)
         self.url = url
-        self.output_file_path = file_path
-        self.reading = 0
+        self.level = 0
+        self.data = []
+        self.data_added = False
+
+    def get_text(self):
+        return u''.join(self.data)
 
     def handle_starttag(self, tag, attributes):
-        if tag == 'h1':
-            self.reading += 1
+        if tag in self.TAGS:
+            self.level += 1
 
     def handle_data(self, data):
-        if self.reading:
-            print data
-            self.file.write(data.encode('utf8') + "\r\n\r\n")
+        if self.level and data.strip() != '':
+            self.data.append(self.__sanitize(data))
+            self.data_added = True
+            print data.strip()
 
     def handle_endtag(self, tag):
-        if tag == 'h1' and self.reading:
-            self.reading -= 1
+        if tag in self.TAGS and self.level:
+            self.level -= 1
+            if self.data_added:
+                self.data.append('\r\n\r\n')
+                self.data_added = False
 
-    def feed(self, html):
-        self.__ensure_dir_exists()
-        self.file = open(self.output_file_path, 'w')
-        HTMLParser.feed(self, html)
-        # self.file.close
-
-    def __ensure_dir_exists(self):
-        dir = os.path.dirname(self.output_file_path)
-        if not os.path.exists(dir):
-            os.makedirs(dir)
+    def __sanitize(self, str):
+        chars = ['laquo;', 'raquo;', 'nbsp;']
+        for char in chars:
+            str = str.replace(char, '')
+        return str.strip('\n')
