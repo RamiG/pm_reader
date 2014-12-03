@@ -3,7 +3,7 @@ from textwrap import TextWrapper
 
 class HtmlReader(HTMLParser):
     TAGS = ['h1', 'h2', 'h3', 'h4', 'p']
-    IGNORED_TAGS = ['head', 'header', 'noindex', 'aside', 'section', 'footer', 'table']
+    IGNORED_TAGS = ['head', 'header', 'noindex', 'aside', 'section', 'footer', 'figure', 'table', 'form']
 
     LINE_WIDTH = 80
     LINE_SEPARATOR = '\n'
@@ -27,7 +27,7 @@ class HtmlReader(HTMLParser):
         wrapped_text = ''
 
         for line in text:
-            wrapped_text += wrapper.fill(line) + LINE_SEPARATOR
+            wrapped_text += wrapper.fill(line) + self.LINE_SEPARATOR
 
         return wrapped_text
 
@@ -40,8 +40,9 @@ class HtmlReader(HTMLParser):
 
         if self.tag_level and tag == 'a':
             for attr in attributes:
-                self.current_href = attr[1]
-                break
+                if attr[0] == 'href':
+                    self.current_href = attr[1]
+                    break
 
     def handle_data(self, data):
         if not self.ignored_tag_level and self.tag_level and data.strip() != '':
@@ -51,14 +52,15 @@ class HtmlReader(HTMLParser):
 
             self.data.append(data)
             self.data_adding = True
-            self.current_href = ''
 
     def handle_endtag(self, tag):
+        self.current_href = ''
+
         if tag in self.TAGS and self.tag_level:
             self.tag_level -= 1
 
             if self.data_adding:
-                self.data.append(2 * LINE_SEPARATOR)
+                self.data.append(2 * self.LINE_SEPARATOR)
                 self.data_adding = False
 
         if tag in self.IGNORED_TAGS:
@@ -67,5 +69,5 @@ class HtmlReader(HTMLParser):
     def __sanitize(self, str):
         chars = ['laquo;', 'raquo;', 'nbsp;']
         for char in chars:
-            str = str.strip().replace(char, '')
+            str = str.replace(char, '')
         return str
