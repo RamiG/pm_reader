@@ -1,5 +1,6 @@
 import urllib
 import os.path
+import ConfigParser
 
 from optparse import OptionParser
 from lib.file_path_builder import FilePathBuilder
@@ -20,10 +21,13 @@ def main():
         print('Error: Source URL not defined')
         exit()
 
+    config = ConfigParser.ConfigParser()
+    config.read('default.cfg')
+
     f = urllib.urlopen(url)
     encoding = f.headers.getparam('charset') or 'utf-8'
     html = f.read().decode(encoding)
-    html_reader = HtmlReader(url)
+    html_reader = HtmlReader(url, config)
     html_reader.feed(html)
 
     builder = FilePathBuilder(url)

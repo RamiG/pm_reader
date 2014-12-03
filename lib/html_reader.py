@@ -2,40 +2,23 @@ from HTMLParser import HTMLParser
 from textwrap import TextWrapper
 
 class HtmlReader(HTMLParser):
-    TAGS = ['h1', 'h2', 'h3', 'h4', 'p']
-    IGNORED_TAGS = ['head', 'header', 'noindex', 'aside', 'section', 'footer', 'figure', 'table', 'form']
-
-    LINE_WIDTH = 80
     LINE_SEPARATOR = '\n'
 
-    def __init__(self, url,):
+    def __init__(self, url, config):
         HTMLParser.__init__(self)
         self.url = url
+        self.config = config
         self.data = []
         self.data_adding = False
         self.tag_level = 0
         self.ignored_tag_level = 0
         self.current_href = ''
 
-    def get_text(self):
-        text = ''.join(self.data)
-        text = text.splitlines()
-
-        wrapper = TextWrapper()
-        wrapper.replace_whitespace = False
-        wrapper.width = self.LINE_WIDTH
-        wrapped_text = ''
-
-        for line in text:
-            wrapped_text += wrapper.fill(line) + self.LINE_SEPARATOR
-
-        return wrapped_text
-
     def handle_starttag(self, tag, attributes):
-        if tag in self.TAGS:
+        if tag in self.config.get('ParseOptions', 'search_tags'):
             self.tag_level += 1
 
-        if tag in self.IGNORED_TAGS:
+        if tag in self.config.get('ParseOptions', 'ignored_tags'):
             self.ignored_tag_level += 1
 
         if self.tag_level and tag == 'a':
@@ -56,15 +39,29 @@ class HtmlReader(HTMLParser):
     def handle_endtag(self, tag):
         self.current_href = ''
 
-        if tag in self.TAGS and self.tag_level:
+        if tag in self.config.get('ParseOptions', 'search_tags') and self.tag_level:
             self.tag_level -= 1
 
             if self.data_adding:
                 self.data.append(2 * self.LINE_SEPARATOR)
                 self.data_adding = False
 
-        if tag in self.IGNORED_TAGS:
+        if tag in self.config.get('ParseOptions', 'ignored_tags'):
             self.ignored_tag_level -= 1
+
+    def get_text(self):
+        text = ''.join(self.data)
+        text = text.splitlines()
+
+        wrapper = TextWrapper()
+        wrapper.replace_whitespace = False
+        wrapper.width = int(self.config.get('FormatOptions', 'line_width'))
+        wrapped_text = ''
+
+        for line in text:
+            wrapped_text += wrapper.fill(line) + self.LINE_SEPARATOR
+
+        return wrapped_text
 
     def __sanitize(self, str):
         chars = ['laquo;', 'raquo;', 'nbsp;']
