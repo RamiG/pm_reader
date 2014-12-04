@@ -3,8 +3,8 @@ import os.path
 import ConfigParser
 
 from optparse import OptionParser
-from lib.file_path_builder import FilePathBuilder
-from lib.html_reader import HtmlReader
+from app.lib.file_path_builder import FilePathBuilder
+from app.lib.html_reader import HtmlReader
 
 def ensure_dir_exists(file_path):
     dir = os.path.dirname(file_path)
