@@ -15,10 +15,10 @@ class HtmlReader(HTMLParser):
         self.current_href = ''
 
     def handle_starttag(self, tag, attributes):
-        if tag in self.config.get('ParseOptions', 'search_tags'):
+        if tag in self.config.get('ParseOptions', 'search_tags').split():
             self.tag_level += 1
 
-        if tag in self.config.get('ParseOptions', 'ignored_tags'):
+        if tag in self.config.get('ParseOptions', 'ignored_tags').split():
             self.ignored_tag_level += 1
 
         if self.tag_level and tag == 'a':
@@ -38,19 +38,19 @@ class HtmlReader(HTMLParser):
 
     def handle_endtag(self, tag):
         self.current_href = ''
-
-        if tag in self.config.get('ParseOptions', 'search_tags') and self.tag_level:
+        if tag in self.config.get('ParseOptions', 'search_tags').split() and self.tag_level:
             self.tag_level -= 1
 
             if self.data_adding:
                 self.data.append(2 * self.LINE_SEPARATOR)
                 self.data_adding = False
 
-        if tag in self.config.get('ParseOptions', 'ignored_tags'):
+        if tag in self.config.get('ParseOptions', 'ignored_tags').split():
             self.ignored_tag_level -= 1
 
     def get_text(self):
         text = ''.join(self.data)
+        text = text.replace('  ', ' ')
         text = text.splitlines()
 
         wrapper = TextWrapper()
@@ -67,4 +67,6 @@ class HtmlReader(HTMLParser):
         chars = ['laquo;', 'raquo;', 'nbsp;']
         for char in chars:
             str = str.replace(char, '')
+
+        str = ' '.join(str.split())
         return str

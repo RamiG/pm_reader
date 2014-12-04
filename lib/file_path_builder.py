@@ -9,8 +9,9 @@ class FilePathBuilder:
         parsed_file_name = parsed_url.path.split('/')[-1]
 
         if parsed_file_name != '':
-            file_path = parsed_url.netloc + parsed_url.path.rsplit('.', 1)[0] + '.txt'
+            file_path = parsed_url.path.rsplit('.', 1)[0] + '.txt'
         else:
-            file_path = parsed_url.netloc + parsed_url.path + 'index.txt'
+            file_path = parsed_url.path + 'index.txt'
 
+        file_path = './output/' + parsed_url.netloc + file_path
         return file_path

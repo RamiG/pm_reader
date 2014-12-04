@@ -1,4 +1,3 @@
 *.pyc
 *.sublime-*
-*lenta.ru*
-*gazeta.ru*
+/output/**
