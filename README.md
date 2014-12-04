@@ -3,5 +3,8 @@
 ###Configuration
     default.cfg
 
-###Running
+###Running application
     python main.py --url='URL'
+
+### Running tests
+    python -m unittest discover
